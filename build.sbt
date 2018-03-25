@@ -4,24 +4,41 @@ lazy val root = (project in file(".")).
     version := "0.1",
     scalaVersion := "2.11.8",
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-    mainClass in Compile := Some("com.learn.streaming.StreamApp") ,
-    mainClass in assembly := Some("com.learn.streaming.StreamApp"),
+    mainClass in Compile := Some("com.learn.streaming.parquet.StreamParquetApp") ,
+    mainClass in assembly := Some("com.learn.streaming.parquet.StreamparquetApp"),
     assemblyJarName := "streaming_hbase.jar"
   )
 
 val sparkVersion = "2.1.0"
 val hbaseVersion = "1.2.0-cdh5.12.0"
 val hadoopVersion = "2.6.0-cdh5.12.0"
+val kafkaVersion = "0.11.0.0-cp1"
+val confluentVersion = "3.3.0"
+val jacksonVersion = "2.8.7"
+
+dependencyOverrides ++= Seq(
+  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion
+)
 
 libraryDependencies ++= Seq(
+  "com.github.scopt" % "scopt_2.11" % "3.6.0",
   "org.apache.spark" %% "spark-core" % sparkVersion,
   "org.apache.spark" %% "spark-sql" % sparkVersion,
+  "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion,
   "org.apache.spark" %% "spark-streaming" % sparkVersion,
-  "org.apache.hbase" %% "hbase" % hbaseVersion,
-  "org.apache.hbase" %% "hbase-client" % hbaseVersion,
-  "org.apache.hbase" %% "hbase-common" % hbaseVersion,
-  "org.apache.hbase" %% "hbase-server" % hbaseVersion,
-  "org.apache.hadoop" %% "hadoop-common" % hadoopVersion
+  "org.apache.kafka" %% "kafka" % kafkaVersion,
+  "org.apache.kafka" % "kafka-clients" % kafkaVersion,
+  "org.apache.kafka" % "connect-json" % kafkaVersion,
+  "org.apache.avro" % "avro" % "1.8.2",
+  "io.confluent" % "kafka-avro-serializer" % confluentVersion,
+  "org.apache.hbase" % "hbase" % hbaseVersion,
+  "org.apache.hbase" % "hbase-client" % hbaseVersion,
+  "org.apache.hbase" % "hbase-common" % hbaseVersion,
+  "org.apache.hbase" % "hbase-server" % hbaseVersion,
+  "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
+  "org.apache.hadoop" % "hadoop-hdfs" % hadoopVersion
 )
 
 resolvers ++= Seq(
@@ -42,7 +59,9 @@ resolvers ++= Seq(
   // Apache
   "Apache Releases"      at "https://repository.apache.org/content/repositories/releases/",
   "Apache Staging"       at "https://repository.apache.org/content/repositories/staging",
-  "Apache Snapshots"     at "https://repository.apache.org/content/repositories/snapshots"
+  "Apache Snapshots"     at "https://repository.apache.org/content/repositories/snapshots",
+  // Confluent
+  "confluent"            at "http://packages.confluent.io/maven/"
 )
 
 val meta = """META.INF(.)*""".r

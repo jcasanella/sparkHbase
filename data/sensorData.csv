@@ -1,0 +1,100 @@
+1,ES,Barcelona,1,100,true
+2,ES,Madrid,2,90,false
+3,ES,Bilbao,1,150,false
+4,ES,Valencia,4,200,true
+5,ES,Ibiza,1,100,true
+6,ES,Castellon,2,90,false
+7,ES,Sabadell,1,150,false
+8,ES,Las Rozas,4,200,true
+9,ES,Hospitalet,7,70,true
+10,ES,Tarragona,1,100,true
+11,ES,Lleida,2,90,false
+12,ES,Girona,1,150,false
+13,ES,Tarrega,4,200,true
+14,ES,Teruel,7,70,true
+15,ES,Valladolid,1,100,true
+16,ES,Oviedo,2,90,false
+17,ES,Lugo,1,150,false
+18,ES,Orense,4,200,true
+19,ES,Tarifa,7,70,true
+20,ES,Cadiz,1,100,true
+21,UK,Gibraltar,2,90,false
+22,UK,Londres,1,150,false
+23,UK,Bletchley,4,200,true
+24,UK,Birmingham,7,70,true
+25,UK,Manchester,1,100,true
+26,UK,Oxford,2,90,false
+27,UK,Liverpool,1,150,false
+28,UK,Brighton,4,200,true
+29,UK,Milton Keynes,7,70,true
+30,UK,Watford Junction,1,100,true
+31,UK,Bedford,2,90,false
+32,UK,Vasilton,1,150,false
+33,UK,Clapham Junction,4,200,true
+34,UK,Corby,7,70,true
+35,UK,Tring,1,100,true
+36,UK,Hemmel Hamstel,2,90,false
+37,UK,Leeds,1,150,false
+38,UK,New Port,4,200,true
+39,UK,Stony Statford,7,70,true
+40,UK,Cardiff,1,100,true
+41,FR,Lyon,2,90,false
+42,FR,Marseille,1,150,false
+43,FR,Paris,4,200,true
+44,FR,Leucate,7,70,true
+45,FR,Toulousse,1,100,true
+46,FR,Carcassone,2,90,false
+47,FR,France1,1,150,false
+48,FR,Versalles,4,200,true
+49,FR,France2,7,70,true
+50,FR,Port dagne,1,100,true
+51,FR,France3,2,90,false
+52,FR,France4,1,150,false
+53,FR,France5,4,200,true
+54,FR,France6,7,70,true
+55,FR,France7,1,100,true
+56,FR,France8,2,90,false
+57,FR,France9,1,150,false
+58,FR,France10,4,200,true
+59,FR,France11,7,70,true
+60,FR,France12,1,100,true
+61,USA,Michigan,2,90,false
+62,USA,Chicago,1,150,false
+63,USA,Detroit,4,200,true
+64,USA,Los Angeles,7,70,true
+65,USA,Boston,1,100,true
+66,USA,Minesotta,2,90,false
+67,USA,Ohio,1,150,false
+68,USA,Texas,7,70,true
+69,USA,Washington,7,70,true
+70,USA,Denver,1,100,true
+71,USA,California,2,90,false
+72,USA,Orlando,1,150,false
+73,USA,San Diego,4,200,true
+74,USA,Palo Alto,7,70,true
+75,USA,Nuevo Mexico,1,100,true
+76,USA,USA1,2,90,false
+77,USA,USA2,1,150,false
+78,USA,USA3,4,200,true
+79,USA,USA4,7,70,true
+80,USA,USA5,1,100,true
+81,ARA,Magreb,2,90,false
+82,ARA,Rabath,1,150,false
+83,ARA,Casablanca,4,200,true
+84,ARA,Argel,7,70,true
+85,ARA,Tunisia,1,100,true
+86,ARA,Damasco,2,90,false
+87,ARA,Ara1,1,150,false
+88,ARA,Ara2,4,200,true
+89,ARA,Ara3,7,70,true
+90,ARA,Libia,1,100,true
+91,ARA,Ara5,2,90,false
+92,ARA,Irak,1,150,false
+93,ARA,Kuwait,4,200,true
+94,ARA,Ara6,7,70,true
+95,ARA,Ara7,1,100,true
+96,ARA,Ara8,2,90,false
+97,ARA,Ara9,1,150,false
+98,ARA,Ara10,4,200,true
+99,ARA,Ara11,7,70,true
+100,ARA,Ara12,1,100,true

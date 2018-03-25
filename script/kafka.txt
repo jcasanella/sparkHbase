@@ -1,0 +1,92 @@
+Folder structure (confluent)
+bin/
+etc/
+logs/
+share/
+src/
+
+We can start up all the services with
+
+./confluent start schema-registry (zookeeper, kafka server, schema registry)
+
+Start zookeeper:
+
+./zookeeper-server-start ../etc/kafka/zookeeper.properties
+
+Start kafka server:
+
+./kafka-server-start ../etc/kafka/server.properties
+
+Start schema-registry:
+
+./schema-registry-start ../etc/schema-registry/schema-registry.properties
+
+Test - send avro msgs to kafka
+./kafka-avro-console-producer --broker-list localhost:9092 --topic test --property value.schema='{"type":"record","name":"myrecord","fields":[{"name":"f1","type":"string"}]}'
+Add the following rows
+{"f1": "value1"}
+{"f1": "value2"}
+{"f1": "value3"}
+
+./kafka-avro-console-consumer --topic test --zookeeper localhost:2191 --from-beginning
+
+To stop confluent
+
+./confluent stop
+
+To drop all the data
+./confluent destroy
+
+
+Create kafka quqeue
+./kafka-topics --create --zookeeper localhost:2191 --replication-factor 1 --partitions 1 --topic test1
+
+List topics
+./kafka-topics --list --zookeeper localhost:2191
+
+Send messages from command line or file
+./kafka-console-producer --broker-list localhost:9092 --topic test1
+./kafka-console-producer --broker-list localhost:9092 --topic test1 < fileDemo.txt
+
+Read from kafka
+ ./kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning
+
+How to enable a cluster of kafka
+cp ../etc/kafka/server.properties ../etc/kafka/server-1.properties
+cp ../etc/kafka/server.properties ../etc/kafka/server-2.properties
+
+Edit
+broker.id=1
+listeners=PLAINTEXT://localhost:9093
+log.dirs=/tmp/kafka-logs1
+
+broker.id=2
+listeners=PLAINTEXT://localhost:9094
+log.dirs=/tmp/kafka-logs2
+
+We add the 2 extra servers
+./kafka-server-start ../etc/kafka/server-1.properties &
+./kafka-server-start ../etc/kafka/server-2.properties &
+
+With the 3 srvers, we create a new topic with replication factor 3
+./kafka-topics --create --zookeeper localhost:2191 --replication-factor 3 --partitions 1 --topic topic-replicated
+
+Description of one topic
+./kafka-topics --describe --zookeeper localhost:2191 --topic topic-replicated
+
+Write to this new topic
+./kafka-console-producer --broker-list localhost:9092 --topic topic-replicated
+
+
+How to drop a topic
+./kafka-run-class kafka.admin.TopicCommand --zookeeper localhost:2191 --delete --topic uber_data
+
+
+
+
+
+
+
+
+
+
