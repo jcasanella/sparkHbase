@@ -10,76 +10,8 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDes
 import org.apache.hadoop.io.Text
 import org.apache.spark.sql.SparkSession
 
-case class SmallSensorRow(country: String, company: String)
-
-object SmallSensorRow {
-
-
-  def parseSensorRow(result: Result): SmallSensorRow = {
-
-    val country = Bytes.toString(result.getValue(Bytes.toBytes(colFam1), Bytes.toBytes(colFam1Field1)))  // Country
-    val company = Bytes.toString(result.getValue(Bytes.toBytes(colFam1), Bytes.toBytes(colFam1Field2)))  // Company
-
-    SmallSensorRow(country, company)
-  }
-}
-
-case class SensorRow(rowkey: String, country: String, company: String, min: Int, max: Int, status: Boolean)
-
-object SensorRow {
-
-  def parseSensorRow(result: Result): SensorRow = {
-
-    val rowKey = Bytes.toString(result.getRow()).split(" ")(0)  // Rowkey
-    val country = Bytes.toString(result.getValue(Bytes.toBytes(colFam1), Bytes.toBytes(colFam1Field1)))  // Country
-    val company = Bytes.toString(result.getValue(Bytes.toBytes(colFam1), Bytes.toBytes(colFam1Field2)))  // Company
-    val minVal = Bytes.toInt(result.getValue(Bytes.toBytes(colFam2), Bytes.toBytes(colFam2Field1)))      // Min
-    val maxVal = Bytes.toInt(result.getValue(Bytes.toBytes(colFam2), Bytes.toBytes(colFam2Field2)))      // Max
-    val status = Bytes.toBoolean(result.getValue(Bytes.toBytes(colFam3), Bytes.toBytes(colFam3Field1)))  // Status
-
-    SensorRow(rowKey, country, company, minVal, maxVal, status)
-  }
-
-  def addSensorRow(sensorTable: Table, row: SensorRow): Unit = {
-
-    var newRow = new Put(row.rowkey.getBytes())
-    newRow.addImmutable(colFam1.getBytes(), colFam1Field1.getBytes(), row.country.getBytes())
-    newRow.addImmutable(colFam1.getBytes(), colFam1Field2.getBytes(), row.company.getBytes())
-    newRow.addImmutable(colFam2.getBytes(), colFam2Field1.getBytes(), Bytes.toBytes(row.min))
-    newRow.addImmutable(colFam2.getBytes(), colFam2Field2.getBytes(), Bytes.toBytes(row.max))
-    newRow.addImmutable(colFam3.getBytes(), colFam3Field1.getBytes(), Bytes.toBytes(row.status))
-
-    sensorTable.put(newRow)
-  }
-
-  def convertToPutStats(row: SensorRow): (ImmutableBytesWritable, Put) = {
-
-    var newRow = new Put(Bytes.toBytes(row.rowkey))
-    newRow.addImmutable(colFam1.getBytes(), colFam1Field1.getBytes(), row.country.getBytes())
-    newRow.addImmutable(colFam1.getBytes(), colFam1Field2.getBytes(), row.country.getBytes())
-    newRow.addImmutable(colFam2.getBytes(), colFam2Field1.getBytes(), Bytes.toBytes(row.min))
-    newRow.addImmutable(colFam2.getBytes(), colFam2Field2.getBytes(), Bytes.toBytes(row.max))
-    newRow.addImmutable(colFam3.getBytes(), colFam3Field1.getBytes(), Bytes.toBytes(row.status))
-
-    (new ImmutableBytesWritable, newRow)
-  }
-}
 
 object HBaseWriteApp {
-
-  // hBase attributes - Name and col family
-  val tableName = "sensor"
-
-  val colFam1 = "data"
-  val colFam1Field1 = "country"
-  val colFam1Field2 = "company"
-
-  val colFam2 = "alert"
-  val colFam2Field1 = "min"
-  val colFam2Field2 = "max"
-
-  val colFam3 = "stats"
-  val colFam3Field1 = "status"
 
   def main(args: Array[String]): Unit = {
 
@@ -92,7 +24,6 @@ object HBaseWriteApp {
     // set up HBase Table configuration
     val conf = HBaseConfiguration.create()
     conf.set(TableInputFormat.INPUT_TABLE, tableName)
-   // conf.set("zookeeper.znode.parent ","/hbase-unsecure")
     conf.addResource("/etc/hbase/conf/hbase-site.xml")
 
     //Check if table present
@@ -112,14 +43,10 @@ object HBaseWriteApp {
     //Insert Data into Table
     val sensorTable = conn.getTable(TableName.valueOf(tableName))
 
-    // row 1
-    SensorRow.addSensorRow(sensorTable, SensorRow("1", "UK", "Worldpay2", 10, 1000, true))
-    // row 2
-    SensorRow.addSensorRow(sensorTable, SensorRow("2", "UK", "Argos2", 50, 5000, false))
-    // row 3
-    SensorRow.addSensorRow(sensorTable, SensorRow("3", "CAT", "ANC2", 1000, 10000000, true))
-    // row 4
-    SensorRow.addSensorRow(sensorTable, SensorRow("4", "CAT", "Fargo2", 3310, 4561000, true))
+    SensorRow.addSensorRow(sensorTable, SensorRow("1", "UK", "Worldpay2", 10, 1000, true))  // Row1
+    SensorRow.addSensorRow(sensorTable, SensorRow("2", "UK", "Argos2", 50, 5000, false))  // Row2
+    SensorRow.addSensorRow(sensorTable, SensorRow("3", "CAT", "ANC2", 1000, 10000000, true)) // Row3
+    SensorRow.addSensorRow(sensorTable, SensorRow("4", "CAT", "Fargo2", 3310, 4561000, true)) // Row4
 
     sensorTable.close()
 
@@ -134,7 +61,7 @@ object HBaseWriteApp {
     println("Rows readed: " + resultRDD.count())
 
     // Print values
-    val parsedRDD = resultRDD.map(SensorRow.parseSensorRow)
+    val parsedRDD = resultRDD.map(SensorRow.parser)
     parsedRDD.foreach(println)
 
     // Now using spark sql
@@ -181,7 +108,7 @@ object HBaseWriteApp {
     println("Rows readed: " + resultFilterRDD.count())
 
     // Print values
-    val parsedFilterRDD = resultFilterRDD.map(SensorRow.parseSensorRow)
+    val parsedFilterRDD = resultFilterRDD.map(SensorRow.parser)
     parsedFilterRDD.foreach(println)
 
     // close hbase connec
