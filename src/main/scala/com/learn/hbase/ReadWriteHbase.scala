@@ -4,11 +4,14 @@ import com.learn.hbase.HBaseWriteApp._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Put, Result, Table}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
+import org.apache.hadoop.hbase.mapreduce.HashTable.HashMapper
 import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDescriptor, TableName}
 import org.apache.hadoop.io.Text
 import org.apache.spark.sql.SparkSession
+
+import scala.collection.immutable.HashMap
 
 
 object HBaseWriteApp {
@@ -22,22 +25,30 @@ object HBaseWriteApp {
       .getOrCreate()
 
     // set up HBase Table configuration
-    val conf = HBaseConfiguration.create()
-    conf.set(TableInputFormat.INPUT_TABLE, tableName)
-    conf.addResource("/etc/hbase/conf/hbase-site.xml")
+    import collection.JavaConversions._
+    val props: Map[String, String] = HashMap(TableInputFormat .INPUT_TABLE -> tableName)
+    val hManager = new HbaseConnectionManager(props)
+
+
+    //val conf = HBaseConfiguration.create()
+    //conf.set(TableInputFormat.INPUT_TABLE, tableName)
+    //conf.addResource("/etc/hbase/conf/hbase-site.xml")
 
     //Check if table present
-    val conn = ConnectionFactory.createConnection(conf)
-    val admin  = conn.getAdmin
+    //val conn = ConnectionFactory.createConnection(conf)
+    //val admin  = conn.getAdmin
 
-    if (!admin.isTableAvailable(TableName.valueOf(tableName))) {
+    //if (!admin.isTableAvailable(TableName.valueOf(tableName))) {
+    if (!hManager.isTableAvailable(tableName)) {
 
-      val tableDesc = new HTableDescriptor(TableName.valueOf(tableName))
-      tableDesc.addFamily(new HColumnDescriptor(colFam1.getBytes()))
-      tableDesc.addFamily(new HColumnDescriptor(colFam2.getBytes()))
-      tableDesc.addFamily(new HColumnDescriptor(colFam3.getBytes()))
+      //val tableDesc = new HTableDescriptor(TableName.valueOf(tableName))
+      //tableDesc.addFamily(new HColumnDescriptor(colFam1.getBytes()))
+      //tableDesc.addFamily(new HColumnDescriptor(colFam2.getBytes()))
+      //tableDesc.addFamily(new HColumnDescriptor(colFam3.getBytes()))
 
-      admin.createTable(tableDesc)
+      //admin.createTable(tableDesc)
+      val colsFamily = Seq(colFam1, colFam2, colFam3)
+      hManager.createTable(tableName, colsFamily)
     }
 
     //Insert Data into Table

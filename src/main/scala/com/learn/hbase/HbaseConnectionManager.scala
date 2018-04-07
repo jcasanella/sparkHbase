@@ -1,7 +1,8 @@
 package com.learn.hbase
 
-import org.apache.hadoop.hbase.HBaseConfiguration
+import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDescriptor, TableName}
 import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory}
+import org.apache.hadoop.hbase.util.Bytes
 
 trait HBaseConnectionManager {
 
@@ -10,6 +11,17 @@ trait HBaseConnectionManager {
 }
 
 class HbaseConnectionManager(configProps: Map[String, String]) extends HBaseConnectionManager with Serializable {
+
+  object TableDescriptorSupport {
+
+    implicit class PimpedTableDescriptor(tableDesc: HTableDescriptor) {
+
+      def createColumnFamily(columnFamily: String): HTableDescriptor = {
+
+
+      }
+    }
+  }
 
   @transient
   private lazy val config = configProps.foldLeft(HBaseConfiguration.create()) {
@@ -27,10 +39,22 @@ class HbaseConnectionManager(configProps: Map[String, String]) extends HBaseConn
     connection
   }
 
+  @transient
+  lazy val admin = connection.getAdmin
+
   def cleanup() = {
 
     if (!connection.isClosed)
       connection.close()
+  }
+
+  def isTableAvailable(tableName: String): Boolean = admin.isTableAvailable(TableName.valueOf(tableName))
+
+  def createTable(tableName: String, colsFamily: Seq[String]) = {
+
+    val tableDesc = new HTableDescriptor(TableName.valueOf(tableName))
+    colsFamily.map(col => tableDesc.addFamily(new HColumnDescriptor(Bytes.toBytes(col))))
+    admin.createTable(tableDesc)
   }
 }
 
