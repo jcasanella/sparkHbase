@@ -12,20 +12,13 @@ trait HBaseConnectionManager {
 
 class HbaseConnectionManager(configProps: Map[String, String]) extends HBaseConnectionManager with Serializable {
 
-  object TableDescriptorSupport {
-
-    implicit class PimpedTableDescriptor(tableDesc: HTableDescriptor) {
-
-      def createColumnFamily(columnFamily: String): HTableDescriptor = {
-
-
-      }
-    }
-  }
-
   @transient
-  private lazy val config = configProps.foldLeft(HBaseConfiguration.create()) {
-    case (conf, entry) => conf.set(entry._1, entry._2)
+  lazy val config = {
+    val conf = configProps.foldLeft(HBaseConfiguration.create()) {
+      case (conf, entry) => conf.set(entry._1, entry._2)
+        conf
+    }
+    conf.addResource("/etc/hbase/conf/hbase-site.xml")
     conf
   }
 
@@ -43,6 +36,9 @@ class HbaseConnectionManager(configProps: Map[String, String]) extends HBaseConn
   lazy val admin = connection.getAdmin
 
   def cleanup() = {
+
+    if (admin != null)
+      admin.close()
 
     if (!connection.isClosed)
       connection.close()
