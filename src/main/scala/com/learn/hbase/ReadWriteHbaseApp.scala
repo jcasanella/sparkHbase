@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
 import org.apache.hadoop.hbase.TableName
 import org.apache.hadoop.io.Text
+import org.apache.log4j.LogManager
 import org.apache.spark.sql.SparkSession
 
 import scala.collection.immutable.HashMap
@@ -15,6 +16,8 @@ object ReadWriteHbaseApp {
 
   def main(args: Array[String]): Unit = {
 
+    lazy val log = LogManager.getLogger(getClass)
+
     // Create spark session
     val session = SparkSession.builder()
       .appName("StreamApp")
@@ -22,6 +25,7 @@ object ReadWriteHbaseApp {
       .getOrCreate()
 
     // set up HBase Table configuration
+    log.info("Set up hbase to write")
     import collection.JavaConversions._
     val props: Map[String, String] = HashMap(TableInputFormat.INPUT_TABLE -> tableName)
     val hManager = new HbaseConnectionManager(props)
@@ -29,12 +33,15 @@ object ReadWriteHbaseApp {
     //Check if table present
     if (!hManager.isTableAvailable(tableName)) {
 
+      log.warn("hbase table doesnt exist")
+
       //admin.createTable(tableDesc)
       val colsFamily = Seq(colFam1, colFam2, colFam3)
       hManager.createTable(tableName, colsFamily)
     }
 
     //Insert Data into Table
+    log.info("Insert data into hbase")
     val sensorTable: Table = hManager.connection.getTable(TableName.valueOf(tableName))
     val dadesSensor = Seq(
       SensorRow("1", "UK", "Worldpay2", 10, 1000, status = true),
@@ -47,6 +54,7 @@ object ReadWriteHbaseApp {
     sensorTable.close()
 
     // Read the hBase table
+    log.info("Read data from hbase")
     val hBaseRDD = session.sparkContext.newAPIHadoopRDD(hManager.config,
       classOf[TableInputFormat],
       classOf[ImmutableBytesWritable],
@@ -54,13 +62,14 @@ object ReadWriteHbaseApp {
 
     // create RDD of result
     val resultRDD = hBaseRDD.map(x => x._2)
-    println("Rows readed: " + resultRDD.count())
+    log.info("Rows readed: " + resultRDD.count())
 
     // Print values
     val parsedRDD = resultRDD.map(SensorRow.parser)
     parsedRDD.foreach(println)
 
     // Now using spark sql
+    log.info("Result using spark sql")
     import session.implicits._
     val parseDF = parsedRDD.toDF()
     parseDF.createOrReplaceTempView("sensorView")
@@ -69,6 +78,7 @@ object ReadWriteHbaseApp {
     sensorDF.show()
 
     // Writing using spark
+    log.info("Set up to read from hbase")
     val propsWrite: Map[String, String] = HashMap(TableOutputFormat.OUTPUT_TABLE -> tableName)
     val hManagerWrite = new HbaseConnectionManager(propsWrite)
 
@@ -101,7 +111,7 @@ object ReadWriteHbaseApp {
 
     // create RDD of result
     val resultFilterRDD = hBaseFilterRDD.map(x => x._2)
-    println("Rows readed: " + resultFilterRDD.count())
+    log.info("Rows readed: " + resultFilterRDD.count())
 
     // Print values
     val parsedFilterRDD = resultFilterRDD.map(SensorRow.parser)
